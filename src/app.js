@@ -160,7 +160,7 @@ class FSM {
       while (!res && count < limit) {
         res = await action.callback(action.args);
         count++;
-        if (count == limit) {console.log("eval limit reached");}
+        if (count == limit) {this.log("evaluation limit reached");}
       }
     }
 
@@ -230,8 +230,9 @@ function Link (event, state) {
  
 /**
  * Actions performed by a state once activated.
- * Actions should return a {bool}: true if finished, false if it must be reevaluated.
- * @param {function} callback - Asynchronise function to call during action evaluation.
+ * Actions must be asynchronous and return a {bool} on completion: 
+ *  true if finished, or false if it must be reevaluated.
+ * @param {function} callback - Asynchronous function to call during action evaluation.
  * @param {args*} args - Arguments to pass to callback.
  */
 function Action (callback, args = null) {

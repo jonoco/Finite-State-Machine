@@ -2,8 +2,11 @@
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
+var _action = require("./action");
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+console.log(_action.actionName);
 /** Generalized finite state machine */
 
 var FSM = (function () {
@@ -156,7 +159,7 @@ var FSM = (function () {
   }, {
     key: "receive",
     value: function receive(event) {
-      console.log("received event: " + event);
+      this.log("received event: " + event);
 
       var links = this.currentState.links.filter(function (link) {
         if (link.event == event) return link;
@@ -173,7 +176,7 @@ var FSM = (function () {
   }, {
     key: "evaluate",
     value: async function evaluate() {
-      console.log("evaluating state of machine " + this.name);
+      this.log("evaluating state of machine");
 
       var actions = this.currentState.actions;
       for (var i = 0; i < actions.length; i++) {
@@ -185,7 +188,7 @@ var FSM = (function () {
           res = await action.callback(action.args);
           count++;
           if (count == limit) {
-            console.log("eval limit reached");
+            this.log("evaluation limit reached");
           }
         }
       }
@@ -201,7 +204,7 @@ var FSM = (function () {
   }, {
     key: "changeState",
     value: function changeState(stateName) {
-      console.log(this.name + ": changing state to " + stateName);
+      this.log("changing state to " + stateName);
 
       var state = this.find(stateName);
       this.currentState = state;
@@ -324,7 +327,6 @@ var wait = async function wait() {
   var ms = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1000;
 
   var something = await sleep(ms);
-  console.log("done waiting");
   return true;
 };
 
