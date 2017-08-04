@@ -1,12 +1,16 @@
+/** Generalized finite state machine */
 class FSM {
-	constructor(name = "FSM") {
+	constructor (name = "FSM") {
 		this.name = name;
 		this.currentState; // The currently active state of the FSM
 		this.states = [];	// All states within this SM
-		this.id = FSM._makeID();
+		this.id = makeID();
 	}
 
-	// Create and return a new state machine
+	/**
+	 * Creates and returns a new state machine
+	 * @param {string} name - Name of the state machine
+	 */
 	static create (name) {
 		const fsm = new FSM(name);
 		if (!FSM.stateMachines) FSM.stateMachines = [];
@@ -15,25 +19,34 @@ class FSM {
 		return fsm;
 	}
 
-	// Send given event to all state machines
+	/**
+	 * Send given event to all state machines.
+	 * @param {string} event - Event to broadcast to FSMs.
+	 */
 	static broadcast (event) {
 		FSM.stateMachines.forEach(sm => {
 			sm.receive(event);
 		});
 	}
 
-	// Add a state
-	// Returns a State
-	add(name) {
+	/**
+   * Add a state.
+   * @param {string} name - Name of state to create.
+   * @return {State} A State object.
+	 */
+	add (name) {
 		const state = new State(name);
-		state.id = FSM._makeID();
+		state.id = makeID();
 		this.states.push(state);
 
 		return state;
 	}
 
-	// Remove state from states array
-	remove(name) {
+	/**
+   * Remove state from states array.
+   * @param {string} name - Name of state to remove.
+	 */
+	remove (name) {
 			if (!this.stateExists(name)) throw new FSMError("No state found with this name: " + name)
 
 			const filteredStates = this.states.filter(state => {
@@ -42,7 +55,9 @@ class FSM {
 			this.states = filteredStates;
 	}
 
-	// Delete this state machine
+	/**
+	 * Delete this state machine.
+	 */
 	destroy () {
 		const index = FSM.stateMachines.indexOf(this);
 		const pre = FSM.stateMachines.slice(0, index);
@@ -50,16 +65,24 @@ class FSM {
 		FSM.stateMachines = pre.concat(post);
 	}
 
-	// Check if state is in states array
-	// Returns bool
-	stateExists(name) {
+	/**
+	 * Check if state is in states array.
+	 * @param {string} name - The name of the state to check for.
+	 * @return {bool}
+	 */
+	stateExists (name) {
 		return this.states.some(state => {
 				if (state.name == name) return state;
 			});
 	}
 
-	// Check if a state contains a link to a given state
-	linkExists(stateFrom, stateTo) {
+	/**
+	 * Check if a state contains a link to a given state.
+	 * @param {string} stateFrom - The state to check for links.
+	 * @param {string} stateTo - The state being linked to.
+	 * @return {bool}
+	 */
+	linkExists (stateFrom, stateTo) {
 		const fromState = this.find(stateFrom);
 		const exists = fromState.links.some(link => {
 				if (link.stateName == stateTo) return link;
@@ -68,15 +91,20 @@ class FSM {
 		return exists;
 	}
 	
-	// Initialize the FSM
-	initialize() {
+	/**
+	 * Initializes the FSM, creating a default starting state.
+	 */
+	initialize () {
 		const state = this.add("State 1");
 		this.currentState = state;
 	}
 
-	// Find a state by name
-	// Returns a State or null
-	find(name) {
+	/**
+	 * Find a state by name.
+	 * @param {string} name - Name of state to find.
+	 * @return {State} A State object.
+	 */
+	find (name) {
 		const foundState = this.states.filter(state => {
 			if (state.name == name) return state;
 		});
@@ -89,26 +117,37 @@ class FSM {
 		}
 	}
 
-	// Create a link between two states for a given event
-	link(stateFrom, stateTo, event) {
+	/**
+	 * Create a link between two states for a given event.
+	 * @param {string} stateFrom - State to register link on.
+	 * @param {string} stateTo - State to link to.
+	 * @param {string} event - Event which executes the link.
+	 */
+	link (stateFrom, stateTo, event) {
 		const link = new Link(event, stateTo);
 
 		const fromState = this.find(stateFrom);
 		fromState.links.push(link);
 	}
 	
-	// Receive an event
-	receive(event) {
+	/**
+	 * Receive an event.
+	 * @param {string} event
+	 */
+	receive (event) {
 		console.log("received event: " + event);
 
-		const link = (this.currentState.links.filter(link => {
+		const links = (this.currentState.links.filter(link => {
 				if (link.event == event) return link;
 		}));
 
-		if (link.length > 0) this.changeState(link[0].stateName);
+		if (links.length > 0) this.changeState(links[0].stateName);
 	}
 
-	// Evaluates the current state, running all actions
+	/**
+	 * Evaluates state by running all actions of current state, returning true when complete.
+	 * @return {bool} 
+	 */
 	async evaluate () {
 		console.log("evaluating state of machine " + this.name);
 
@@ -124,91 +163,144 @@ class FSM {
 				if (count == limit) {console.log("eval limit reached");}
 			}
 		}
+
+		return true;
 	}
 
-	// Change current state to given state by name
-	changeState(stateName) {
-		console.log("chaning state to " + stateName);
+	/**
+	 * Change current state to given state by name.
+	 * @param {string} stateName - State to change to. 
+	 */
+	changeState (stateName) {
+		console.log(this.name + ": changing state to " + stateName);
 
 		const state = this.find(stateName);
 		this.currentState = state;
 	}
 
-	// Change the name of the given state with the new name provided
-	renameState(oldStateName, newStateName) {
-		const state = this.find(oldStateName);
+	/**
+	 * Change the name of the given state with the new name provided.
+	 * @param {string} stateName - Name of state to rename.
+	 * @param {string} newStateName - New name for state.
+	 */
+	renameState (stateName, newStateName) {
+		const state = this.find(stateName);
 		state.name = newStateName;
 	}
 
-	// Adds an action to a given state
+	/**
+	 * Adds an action to a given state.
+	 * @param {string} stateName - Name of state to add action to.
+	 * @param {Action} action - Action to add.
+	 */
 	addAction (stateName, action) {
 		const state = this.find(stateName);
 		state.actions.push(action);
 	}
 
-	// Create a unique id string
-	static _makeID () {
-	  let text = "";
-	  const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-	  for (let i = 0; i < 12; i++)
-	    text += possible.charAt(Math.floor(Math.random() * possible.length));
-
-	  return text;
+	/**
+	 * Prints formatted message to console.log.
+	 * @param {string} text - Text of message to log.
+	 */
+	log (text) {
+		console.log(this.name + ": " + text);
 	}
 }
 
-// A discrete state of a state machine
+/**
+ * A discrete state of a state machine.
+ * @param {string} name - Name of state.
+ */
 function State (name) {
 	this.name = name;
 	this.id;
-	
-	// All outbound connecting states from this state
-	this.links = [];
-	
-	// All actions assigned to this state;
-	this.actions = [];
+	this.links = []; // All outbound connecting states from this state
+	this.actions = []; // All actions assigned to this state;
 }
 
-// The unidirectional link between two states
+/**
+ * The unidirectional link between two states.
+ * @param {string} event - Name of event to listen for.
+ * @param {string} state - Name of event to link to.
+ */
 function Link (event, state) {
 	this.event = event;
 	this.stateName = state;
 }
  
-// 	Actions performed by a state once activated
-// 	Actions should return a bool: true if finished, false if it must be reevaluated
-	
-function Action(callback, args = null) {
+/**
+ * Actions performed by a state once activated.
+ * Actions should return a {bool}: true if finished, false if it must be reevaluated.
+ * @param {function} callback - Asynchronise function to call during action evaluation.
+ * @param {args*} args - Arguments to pass to callback.
+ */
+function Action (callback, args = null) {
 	this.callback = callback;
 	this.args = args;
 }
 
-// General FSM error Exception class
+/**
+ * General FSM error Exception class.
+ * @param {string} text - Error message.
+ */
 function FSMError (text) {
 	this.text = text;
 }
 
-// Actions
+/// Actions
 
-const waitForMe = async (ms = 1000) => {
+/**
+ * Delay timer action.
+ * @param {int} ms - Delay in miliseconds.
+ * @return {bool}
+ */
+const wait = async (ms = 1000) => {
 	const something = await sleep(ms);
 	console.log("done waiting");
 	return true
 }
 
+/**
+ * Debugging action.
+ * @return {bool}
+ */
 const returnFalse = async () => {
 	return false
 }
 
+/**
+ * Simple event broadcasting action.
+ * @param {string} event - Event to broadcast.
+ * @return {bool}
+ */
 const sendEvent = async (event) => {
 	FSM.broadcast(event);
 	return true;
 }
 
-// Utility for actions
+/// Utility functions
+
+/**
+ * Promise based delay timer.
+ * @param {int} ms - Delay in miliseconds.
+ * @return {Promise} - Promise wrapped timer.
+ */
 function sleep (ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * Create a unique id {string}
+ * @return {string} - a random 12 character id string.
+ */
+function makeID () {
+  let text = "";
+  const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+  for (let i = 0; i < 12; i++)
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+  return text;
 }
 
 /// IMPLEMENTATION
@@ -217,6 +309,8 @@ fsm = FSM.create();
 
 fsm.add('State 2');
 fsm.link('State 1', 'State 2', 'go');
+fsm.addAction('State 1', new Action(wait, 2000));
 fsm.addAction('State 1', new Action(sendEvent, 'go'));
-fsm.evaluate();
-console.log(fsm);
+
+const done = fsm.evaluate();
+done.then(() => {console.log("eval complete")})
