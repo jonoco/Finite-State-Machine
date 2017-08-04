@@ -135,7 +135,7 @@ class FSM {
    * @param {string} event
    */
   receive (event) {
-    console.log("received event: " + event);
+    this.log("received event: " + event);
 
     const links = (this.currentState.links.filter(link => {
         if (link.event == event) return link;
@@ -149,7 +149,7 @@ class FSM {
    * @return {bool} 
    */
   async evaluate () {
-    console.log("evaluating state of machine " + this.name);
+    this.log("evaluating state of machine");
 
     const actions = this.currentState.actions;
     for (let i = 0; i < actions.length ; i++) {
@@ -172,7 +172,7 @@ class FSM {
    * @param {string} stateName - State to change to. 
    */
   changeState (stateName) {
-    console.log(this.name + ": changing state to " + stateName);
+    this.log("changing state to " + stateName);
 
     const state = this.find(stateName);
     this.currentState = state;
@@ -256,7 +256,6 @@ function FSMError (text) {
  */
 const wait = async (ms = 1000) => {
   const something = await sleep(ms);
-  console.log("done waiting");
   return true
 }
 
