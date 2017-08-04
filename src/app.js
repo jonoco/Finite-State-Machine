@@ -84,8 +84,8 @@ class FSM {
    */
   linkExists (stateFrom, stateTo) {
     const fromState = this.find(stateFrom);
-    const exists = fromState.links.some(link => {
-        if (link.stateName == stateTo) return link;
+    const exists = fromState.links.some(stateLink => {
+        if (stateLink.stateName == stateTo) return stateLink;
     });
 
     return exists;
@@ -123,7 +123,7 @@ class FSM {
    * @param {string} stateTo - State to link to.
    * @param {string} event - Event which executes the link.
    */
-  link (stateFrom, stateTo, event) {
+  linkState (stateFrom, stateTo, event) {
     const link = new Link(event, stateTo);
 
     const fromState = this.find(stateFrom);
@@ -305,10 +305,10 @@ function makeID () {
 
 /// IMPLEMENTATION
 
-fsm = FSM.create();
+const fsm = FSM.create();
 
 fsm.add('State 2');
-fsm.link('State 1', 'State 2', 'go');
+fsm.linkState('State 1', 'State 2', 'go');
 fsm.addAction('State 1', new Action(wait, 2000));
 fsm.addAction('State 1', new Action(sendEvent, 'go'));
 
