@@ -1,5 +1,7 @@
+import { makeID } from './utility';
+
 /** Generalized finite state machine */
-class FSM {
+export default class FSM {
   constructor (name = "FSM") {
     this.name = name;
     this.currentState; // The currently active state of the FSM
@@ -227,18 +229,6 @@ function Link (event, state) {
   this.event = event;
   this.stateName = state;
 }
- 
-/**
- * Actions performed by a state once activated.
- * Actions must be asynchronous and return a {bool} on completion: 
- *  true if finished, or false if it must be reevaluated.
- * @param {function} callback - Asynchronous function to call during action evaluation.
- * @param {args*} args - Arguments to pass to callback.
- */
-function Action (callback, args = null) {
-  this.callback = callback;
-  this.args = args;
-}
 
 /**
  * General FSM error Exception class.
@@ -247,70 +237,3 @@ function Action (callback, args = null) {
 function FSMError (text) {
   this.text = text;
 }
-
-/// Actions
-
-/**
- * Delay timer action.
- * @param {int} ms - Delay in miliseconds.
- * @return {bool}
- */
-const wait = async (ms = 1000) => {
-  const something = await sleep(ms);
-  return true
-}
-
-/**
- * Debugging action.
- * @return {bool}
- */
-const returnFalse = async () => {
-  return false
-}
-
-/**
- * Simple event broadcasting action.
- * @param {string} event - Event to broadcast.
- * @return {bool}
- */
-const sendEvent = async (event) => {
-  FSM.broadcast(event);
-  return true;
-}
-
-/// Utility functions
-
-/**
- * Promise based delay timer.
- * @param {int} ms - Delay in miliseconds.
- * @return {Promise} - Promise wrapped timer.
- */
-function sleep (ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-/**
- * Create a unique id {string}
- * @return {string} - a random 12 character id string.
- */
-function makeID () {
-  let text = "";
-  const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-  for (let i = 0; i < 12; i++)
-    text += possible.charAt(Math.floor(Math.random() * possible.length));
-
-  return text;
-}
-
-/// IMPLEMENTATION
-
-const fsm = FSM.create();
-
-fsm.add('State 2');
-fsm.linkState('State 1', 'State 2', 'go');
-fsm.addAction('State 1', new Action(wait, 2000));
-fsm.addAction('State 1', new Action(sendEvent, 'go'));
-
-const done = fsm.evaluate();
-done.then(() => {console.log("eval complete")})

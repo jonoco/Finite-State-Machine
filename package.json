@@ -2,10 +2,9 @@
   "name": "fsm",
   "version": "1.0.0",
   "description": "",
-  "main": "src/app.js",
+  "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "babel src/app.js -w -o main.js",
     "build": "webpack",
     "watch": "webpack --watch"
   },
