@@ -37,7 +37,7 @@ export default class FSM {
    * @param {string} name - Name of state to create.
    * @return {State} A State object.
    */
-  add (name) {
+  addState (name) {
     const state = new State(name);
     state.id = makeID();
     this.states.push(state);
@@ -51,7 +51,7 @@ export default class FSM {
    * Remove state from states array.
    * @param {string} name - Name of state to remove.
    */
-  remove (name) {
+  removeState (name) {
       if (!this.stateExists(name)) throw new FSMError("No state found with this name: " + name)
 
       const filteredStates = this.states.filter(state => {
@@ -88,7 +88,7 @@ export default class FSM {
    * @return {bool}
    */
   linkExists (stateFrom, stateTo) {
-    const fromState = this.find(stateFrom);
+    const fromState = this.findState(stateFrom);
     const exists = fromState.links.some(stateLink => {
         if (stateLink.stateName == stateTo) return stateLink;
     });
@@ -101,7 +101,7 @@ export default class FSM {
    * @param {string} name - Name of state to find.
    * @return {State} A State object.
    */
-  find (name) {
+  findState (name) {
     const foundState = this.states.filter(state => {
       if (state.name == name) return state;
     });
@@ -123,7 +123,7 @@ export default class FSM {
   linkState (stateFrom, stateTo, event) {
     const link = new Link(event, stateTo);
 
-    const fromState = this.find(stateFrom);
+    const fromState = this.findState(stateFrom);
     fromState.links.push(link);
   }
   
@@ -178,7 +178,7 @@ export default class FSM {
   changeState (stateName) {
     this.log(`changing state from ${this.currentState.name} to ${stateName}`);
 
-    const state = this.find(stateName);
+    const state = this.findState(stateName);
     this.currentState = state;
   }
 
@@ -188,7 +188,7 @@ export default class FSM {
    * @param {string} newStateName - New name for state.
    */
   renameState (stateName, newStateName) {
-    const state = this.find(stateName);
+    const state = this.findState(stateName);
     state.name = newStateName;
   }
 
@@ -198,7 +198,7 @@ export default class FSM {
    * @param {Action} action - Action to add.
    */
   addAction (stateName, action) {
-    const state = this.find(stateName);
+    const state = this.findState(stateName);
     state.actions.push(action);
   }
 

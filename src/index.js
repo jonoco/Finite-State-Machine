@@ -5,8 +5,8 @@ import FSM from './fsm';
 
 const fsm = FSM.create();
 
-fsm.add('State 1');
-fsm.add('State 2');
+fsm.addState('State 1');
+fsm.addState('State 2');
 fsm.linkState('State 1', 'State 2', 'go');
 fsm.addAction('State 1', new Action(wait, 1500));
 fsm.addAction('State 1', new Action(sendEvent, 'go'));
