@@ -17,7 +17,7 @@ export default class FSM {
     const fsm = new FSM(name);
     if (!FSM.stateMachines) FSM.stateMachines = [];
     FSM.stateMachines.push(fsm);
-    fsm.initialize();
+    
     return fsm;
   }
 
@@ -40,6 +40,8 @@ export default class FSM {
     const state = new State(name);
     state.id = makeID();
     this.states.push(state);
+
+    if (!this.currentState) this.currentState = state;
 
     return state;
   }
@@ -91,14 +93,6 @@ export default class FSM {
     });
 
     return exists;
-  }
-  
-  /**
-   * Initializes the FSM, creating a default starting state.
-   */
-  initialize () {
-    const state = this.add("State 1");
-    this.currentState = state;
   }
 
   /**
