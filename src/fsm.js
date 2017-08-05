@@ -4,10 +4,11 @@ import { makeID } from './utility';
 export default class FSM {
   constructor (name = "FSM") {
     this.name = name;
-    this.currentState; // The currently active state of the FSM
-    this.states = []; // All states within this SM
-    this.id = makeID();
-    this.logMessages = true; // Log all internal messages to console
+    this.currentState;        // The currently active state of the FSM
+    this.states = [];         // All states within this state machine
+    this.actions = {};        // All Actions useds within this state machine, keyed by id
+    this.id = makeID();       // Unique 12 character string id
+    this.logMessages = true;  // Log all internal messages to console
   }
 
   /**
@@ -99,11 +100,11 @@ export default class FSM {
   /**
    * Check whether an action exists within a given state.
    * @param {string} stateName - Name of state to search for action
-   * @param {Action} action - Action to find.
+   * @param {string} actionID - ID of Action to find.
    */
-   actionExists (stateName, action) {
+   actionExists (stateName, actionID) {
     const state = this.findState(stateName);
-    const exists = state.actions.indexOf(action);
+    const exists = state.actions.indexOf(actionID);
 
     return (exists > -1);
    }
@@ -169,11 +170,12 @@ export default class FSM {
 
     const actions = this.currentState.actions;
     for (let i = 0; i < actions.length ; i++) {
-      let action = actions[i];
+      let actionID = actions[i];
       let count = 0;
       const limit = 10;
       let res;
       while (!res && count < limit) {
+        let action = this.actions[actionID]; 
         res = await action.callback(action.args);
         count++;
         if (count == limit) {this.log("state evaluation limit reached");}
@@ -205,30 +207,36 @@ export default class FSM {
   }
 
   /**
-   * Adds an action to a given state.
+   * Adds an action to a given state. Returns the Action id.
    * @param {string} stateName - Name of state to add action to.
    * @param {Action} action - Action to add.
+   * @return {string} The Action ID.
    */
   addAction (stateName, action) {
     const state = this.findState(stateName);
-    state.actions.push(action);
+    const actionID = action.createID();
+    this.actions[actionID] = action;
+    state.actions.push(actionID);
+
+    return actionID
   }
 
   /**
    * Removes an action from a state.
    * @param {string} stateName - Name of the state to remove action from.
-   * @param {Action} action - Action to remove.
+   * @param {string} actionID - ID of Action to remove.
    */
-   removeAction (stateName, action) {
+   removeAction (stateName, actionID) {
     const state = this.findState(stateName);
 
-    if (!this.actionExists(stateName, action)) {
+    if (!this.actionExists(stateName, actionID)) {
       throw new FSMError(`action does not exist within ${stateName}`);
       return;
     }
 
-    const index = state.actions.indexOf(action);
+    const index = state.actions.indexOf(actionID);
     state.actions.splice(index, 1);
+    delete this.actions[actionID]
 
     this.log(`removed action from ${stateName}`);
    }

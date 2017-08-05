@@ -10,10 +10,21 @@ import { sleep, makeID } from './utility';
  * @param {function} callback - Asynchronous function to call during action evaluation.
  * @param {args*} args - Arguments to pass to callback.
  */
-export function Action (callback, args = null) {
-  this.callback = callback;
-  this.args = args;
-  this.id = makeID();
+export class Action {
+  constructor (callback, args = null) {
+    this.callback = callback;
+    this.args = args;
+    this.id;
+  }
+
+  /**
+   * Creates and returns a unique id string.
+   * @return {string} A 12 character string id.
+   */
+  createID () {
+    this.id = makeID();
+    return this.id;
+  }
 }
 
 /** Actions */

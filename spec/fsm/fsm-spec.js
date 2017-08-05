@@ -1,4 +1,4 @@
-const { FSM } = require("../../dist/fsm");
+const { FSM, Action } = require("../../dist/fsm");
 
 describe("Test FSM object", function() {
   let fsm;
@@ -49,9 +49,27 @@ describe("Test FSM object", function() {
     const name02 = "two";
 
     fsm.addState(name01);
-    
+
     expect(fsm.currentState.name).toEqual(name01);
     fsm.renameState(name01, name02);
     expect(fsm.currentState.name).toEqual(name02);
   });
+
+  it("should add an action to the fsm", function() {
+    const name01 = "one";
+    
+    fsm.addState(name01);
+    const id = fsm.addAction(name01, new Action(async () => {}));
+
+    expect(fsm.actions[id]).toBeDefined();
+  });
+
+  it("should add an action to a state", function() {
+    const name01 = "one";
+    
+    fsm.addState(name01);
+    fsm.addAction(name01, new Action(async () => {}));
+
+    expect(fsm.currentState.actions.length).toEqual(1);
+  });  
 });
