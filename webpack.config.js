@@ -8,7 +8,7 @@ module.exports = {
 		new CleanWebpackPlugin(['dist'])
   ],
   output: {
-    filename: 'main.js',
+    filename: 'fsm.js',
     path: path.resolve(__dirname, 'dist')
   }
 };
