@@ -1,7 +1,7 @@
 {
-  "name": "fsm",
-  "version": "1.0.0",
-  "description": "",
+  "name": "finitus",
+  "version": "0.0.0-development",
+  "description": "A flexible finite state machine.",
   "main": "src/index.js",
   "scripts": {
     "test": "./node_modules/.bin/jasmine",
@@ -9,10 +9,20 @@
     "watch": "webpack --watch",
     "push": "webpack && git push",
     "precommit": "npm test",
-    "prepush": "npm test"
+    "prepush": "npm test",
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jonoco/Finite-State-Machine.git"
+  },
+  "keywords": [
+    "fsm",
+    "state machine"
+  ],
   "author": "Joshua N. Cox <joshua.n.cox@gmail.com> (http://jonoco.me/)",
   "license": "MIT",
+  "homepage": "https://github.com/jonoco/Finite-State-Machine",
   "devDependencies": {
     "babel-cli": "6.24.1",
     "babel-plugin-syntax-async-functions": "6.13.0",
@@ -21,6 +31,7 @@
     "clean-webpack-plugin": "0.1.16",
     "husky": "0.14.3",
     "jasmine": "2.7.0",
+    "semantic-release": "^6.3.6",
     "webpack": "3.4.1"
   }
 }
