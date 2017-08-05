@@ -97,6 +97,18 @@ export default class FSM {
   }
 
   /**
+   * Check whether an action exists within a given state.
+   * @param {string} stateName - Name of state to search for action
+   * @param {Action} action - Action to find.
+   */
+   actionExists (stateName, action) {
+    const state = this.findState(stateName);
+    const exists = state.actions.indexOf(action);
+
+    return (exists > -1);
+   }
+
+  /**
    * Find a state by name.
    * @param {string} name - Name of state to find.
    * @return {State} A State object.
@@ -201,6 +213,25 @@ export default class FSM {
     const state = this.findState(stateName);
     state.actions.push(action);
   }
+
+  /**
+   * Removes an action from a state.
+   * @param {string} stateName - Name of the state to remove action from.
+   * @param {Action} action - Action to remove.
+   */
+   removeAction (stateName, action) {
+    const state = this.findState(stateName);
+
+    if (!this.actionExists(stateName, action)) {
+      throw new FSMError(`action does not exist within ${stateName}`);
+      return;
+    }
+
+    const index = state.actions.indexOf(action);
+    state.actions.splice(index, 1);
+
+    this.log(`removed action from ${stateName}`);
+   }
 
   /**
    * Prints formatted message to console.log.

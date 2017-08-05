@@ -1,5 +1,5 @@
 import FSM from './fsm';
-import { sleep } from './utility';
+import { sleep, makeID } from './utility';
 
 /** Action type and premade actions */
 
@@ -13,6 +13,7 @@ import { sleep } from './utility';
 export function Action (callback, args = null) {
   this.callback = callback;
   this.args = args;
+  this.id = makeID();
 }
 
 /** Actions */
