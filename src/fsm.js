@@ -7,6 +7,7 @@ export default class FSM {
     this.currentState; // The currently active state of the FSM
     this.states = []; // All states within this SM
     this.id = makeID();
+    this.logMessages = true; // Log all internal messages to console
   }
 
   /**
@@ -131,7 +132,7 @@ export default class FSM {
    * @param {string} event
    */
   receive (event) {
-    this.log("received event: " + event);
+    this.log(`received event: ${event}`);
 
     const links = (this.currentState.links.filter(link => {
         if (link.event == event) return link;
@@ -145,7 +146,14 @@ export default class FSM {
    * @return {bool} 
    */
   async evaluate () {
-    this.log("evaluating state of machine");
+    this.log(`evaluating state of machine`);
+    
+    if (!this.currentState) {
+      this.log(`contains no current state`);
+      return true;
+    } else {
+      this.log(`current state is ${this.currentState.name}`);
+    }
 
     const actions = this.currentState.actions;
     for (let i = 0; i < actions.length ; i++) {
@@ -156,7 +164,7 @@ export default class FSM {
       while (!res && count < limit) {
         res = await action.callback(action.args);
         count++;
-        if (count == limit) {this.log("evaluation limit reached");}
+        if (count == limit) {this.log("state evaluation limit reached");}
       }
     }
 
@@ -168,7 +176,7 @@ export default class FSM {
    * @param {string} stateName - State to change to. 
    */
   changeState (stateName) {
-    this.log("changing state to " + stateName);
+    this.log(`changing state from ${this.currentState.name} to ${stateName}`);
 
     const state = this.find(stateName);
     this.currentState = state;
@@ -199,7 +207,15 @@ export default class FSM {
    * @param {string} text - Text of message to log.
    */
   log (text) {
-    console.log(this.name + ": " + text);
+    if (this.logMessages) console.log(`${this.name}: ${text}`);
+  }
+  
+  /**
+   * Activate message logging. Default is true.
+   * @param {bool} active - If true will log all fsm messages
+   */
+  debug (active) {
+    this.logMessages = active;
   }
 }
 
