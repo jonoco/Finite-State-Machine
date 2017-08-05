@@ -43,4 +43,15 @@ describe("Test FSM object", function() {
 
     done();
   });
+
+  it("should rename a state", function() {
+    const name01 = "one";
+    const name02 = "two";
+
+    fsm.addState(name01);
+    
+    expect(fsm.currentState.name).toEqual(name01);
+    fsm.renameState(name01, name02);
+    expect(fsm.currentState.name).toEqual(name02);
+  });
 });
