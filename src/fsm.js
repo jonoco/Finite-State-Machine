@@ -1,4 +1,4 @@
-import { makeID } from './utility';
+import { makeID, sleep } from './utility';
 
 /** Generalized finite state machine */
 export default class FSM {
@@ -7,6 +7,7 @@ export default class FSM {
     this.currentState;        // The currently active state of the FSM
     this.states = [];         // All states within this state machine
     this.actions = {};        // All Actions useds within this state machine, keyed by id
+    this.events = [];         // Event queue
     this.id = makeID();       // Unique 12 character string id
     this.logMessages = true;  // Log all internal messages to console
   }
@@ -29,8 +30,24 @@ export default class FSM {
    */
   static broadcast (event) {
     FSM.stateMachines.forEach(sm => {
-      sm.receive(event);
+      sm.listen(event);
     });
+  }
+
+  /**
+   * Evaluates each state machine sequentially.
+   * @param {bool} loop - Whether to evaluate all state machines once or continually
+   */
+  static async evaluate (loop) {
+    const stateMachines = FSM.stateMachines;
+    for (let i = 0; i < stateMachines.length ; i++) {
+      await stateMachines[i].evaluate();
+    }
+    
+    if (loop) {
+      await sleep(10); // Wait 10 ms before looping
+      FSM.evaluate(loop);
+    }
   }
 
   /**
@@ -139,23 +156,40 @@ export default class FSM {
     const fromState = this.findState(stateFrom);
     fromState.links.push(link);
   }
+
+  /**
+   * Listens for events and queues them.
+   * @param {string} event - Event received from FSM.
+   */
+  listen (event) {
+    this.events.push(event);
+  }
   
   /**
-   * Receive an event.
+   * Receive an event to be processed from the event queue.
    * @param {string} event
+   * @return {bool} - Returns true if state change occurred.
    */
   receive (event) {
     this.log(`received event: ${event}`);
+    
+    if (!this.currentState) return;
+    if (this.currentState.links.length == 0) return;
 
     const links = (this.currentState.links.filter(link => {
         if (link.event == event) return link;
     }));
 
-    if (links.length > 0) this.changeState(links[0].stateName);
+    if (links.length > 0) {
+      this.changeState(links[0].stateName);
+      return true;
+    }
+
+    return false;
   }
 
   /**
-   * Evaluates state by running all actions of current state, returning true when complete.
+   * Evaluates the current state, returning true when complete.
    * @return {bool} 
    */
   async evaluate () {
@@ -168,6 +202,7 @@ export default class FSM {
       this.log(`current state is ${this.currentState.name}`);
     }
 
+    // Evaluates actions of the current state
     const actions = this.currentState.actions;
     for (let i = 0; i < actions.length ; i++) {
       let actionID = actions[i];
@@ -181,6 +216,13 @@ export default class FSM {
         if (count == limit) {this.log("state evaluation limit reached");}
       }
     }
+
+    // Evaluates event queue to check for state changes
+    const events = this.events;
+    for (let i = 0 ; i < events.length ; i++) {
+      if (this.receive(events[i])) break;
+    }
+    this.events = [];
 
     return true;
   }

@@ -39,6 +39,7 @@ describe("Test FSM object", function() {
     
     expect(fsm.currentState.name).toEqual(state01);
     FSM.broadcast(event);
+    FSM.evaluate();
     expect(fsm.currentState.name).toEqual(state02);
 
     done();
