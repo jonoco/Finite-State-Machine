@@ -53,11 +53,13 @@ export default class FSM {
   /**
    * Add a state.
    * @param {string} name - Name of state to create.
+   * @param {bool} loop - Whether state should run Actions every evaluation. Default false.
    * @return {State} A State object.
    */
-  addState (name) {
+  addState (name, loop = false) {
     const state = new State(name);
     state.id = makeID();
+    state.loop = loop;
     this.states.push(state);
 
     if (!this.currentState) this.currentState = state;
@@ -189,20 +191,31 @@ export default class FSM {
   }
 
   /**
-   * Evaluates the current state, returning true when complete.
-   * @return {bool} 
+   * Evaluates the current state. Returning true if evaluated.
+   * @return {bool} - Returns whether or not the state was evaluated.
    */
   async evaluate () {
-    this.log(`evaluating state of machine`);
-    
     if (!this.currentState) {
       this.log(`contains no current state`);
-      return true;
-    } else {
-      this.log(`current state is ${this.currentState.name}`);
-    }
+      return false;
+    } 
 
-    // Evaluates actions of the current state
+    this.log(`evaluating state of machine`);
+    this.log(`current state is ${this.currentState.name}`);
+
+    await this.evaluateActions();
+    await this.evaluateEvents();
+
+    return true;
+  }
+
+  /**
+   * Evalutes the current state's actions.
+   * @return {bool} - Returns true if evaluated.
+   */
+  async evaluateActions () {
+    if (!this.currentState.loop && this.currentState.evaluated) return false;
+
     const actions = this.currentState.actions;
     for (let i = 0; i < actions.length ; i++) {
       let actionID = actions[i];
@@ -217,7 +230,16 @@ export default class FSM {
       }
     }
 
-    // Evaluates event queue to check for state changes
+    this.currentState.evaluated = true;
+
+    return true;
+  }
+
+  /**
+   * Evaluates event queue to check for state changes.
+   * @return {bool} - Returns true if evaluated.
+   */
+  async evaluateEvents () {
     const events = this.events;
     for (let i = 0 ; i < events.length ; i++) {
       if (this.receive(events[i])) break;
@@ -225,7 +247,7 @@ export default class FSM {
     this.events = [];
 
     return true;
-  }
+  }  
 
   /**
    * Change current state to given state by name.
@@ -236,6 +258,7 @@ export default class FSM {
 
     const state = this.findState(stateName);
     this.currentState = state;
+    this.currentState.evaluated = false;
   }
 
   /**
@@ -307,8 +330,10 @@ export default class FSM {
 function State (name) {
   this.name = name;
   this.id;
-  this.links = []; // All outbound connecting states from this state
-  this.actions = []; // All actions assigned to this state;
+  this.links = [];        // All outbound connecting states from this state
+  this.actions = [];      // All actions assigned to this state;
+  this.loop;              // Whether state loops through actions every evaluation
+  this.evaluated = false; // Whether state already evaluated actions
 }
 
 /**

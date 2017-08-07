@@ -5,6 +5,7 @@ A flexible finite state machine.
 
 ## Lifecycle
 - Evaluate ->  
-- State machine runs actions on current state ->
+- Check if state has not evaluated or is set to loop ->
+    - State machine runs actions on current state ->
 - State machine processes event queue ->
 - Signal the evaluation is complete

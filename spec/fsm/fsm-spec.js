@@ -39,8 +39,10 @@ describe("Test FSM object", function() {
     
     expect(fsm.currentState.name).toEqual(state01);
     FSM.broadcast(event);
-    FSM.evaluate();
-    expect(fsm.currentState.name).toEqual(state02);
+
+    FSM.evaluate().then(function() {
+      expect(fsm.currentState.name).toEqual(state02);  
+    });
 
     done();
   });
@@ -72,5 +74,21 @@ describe("Test FSM object", function() {
     fsm.addAction(name01, new Action(async () => {}));
 
     expect(fsm.currentState.actions.length).toEqual(1);
-  });  
+  });
+
+  it("should not evaluate actions twice without a loop flag", function(done) {
+    const name01 = "one";
+
+    fsm.addState(name01);
+    fsm.addAction(name01, new Action(async () => {}));
+    
+    fsm.evaluateActions().then(res => {
+      expect(res).toEqual(true);
+      return fsm.evaluateActions();
+    }).then(res => {
+      expect(res).toEqual(false);
+    });
+
+    done();
+  });
 });
