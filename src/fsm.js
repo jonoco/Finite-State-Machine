@@ -27,10 +27,15 @@ export default class FSM {
   /**
    * Send given event to all state machines.
    * @param {string} event - Event to broadcast to FSMs.
+   * @param {FSM} only - Only state machine to receive event.
    */
-  static broadcast (event) {
+  static broadcast (event, only = null) {
     FSM.stateMachines.forEach(sm => {
-      sm.listen(event);
+      if (!only) {
+        sm.listen(event);  
+      } else if (sm.id == only.id) {
+        sm.listen(event);
+      } 
     });
   }
 
@@ -224,7 +229,7 @@ export default class FSM {
       let res;
       while (!res && count < limit) {
         let action = this.actions[actionID]; 
-        res = await action.callback(action.args);
+        res = await action.callback(...action.args);
         count++;
         if (count == limit) {this.log("state evaluation limit reached");}
       }

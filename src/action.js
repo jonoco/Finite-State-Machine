@@ -7,11 +7,11 @@ import { sleep, makeID } from './utility';
  * Actions performed by a state once activated.
  * Actions must be asynchronous and return a {bool} on completion: 
  *  true if finished, or false if it must be reevaluated.
- * @param {function} callback - Asynchronous function to call during action evaluation.
+ * @param {AsyncFunction} callback - Asynchronous function to call during action evaluation.
  * @param {args*} args - Arguments to pass to callback.
  */
 export class Action {
-  constructor (callback, args = null) {
+  constructor (callback, ...args) {
     this.callback = callback;
     this.args = args;
     this.id;
@@ -50,9 +50,10 @@ export const returnFalse = async () => {
 /**
  * Simple event broadcasting action.
  * @param {string} event - Event to broadcast.
+ * @param {FSM} only - Send message to specific state machine.
  * @return {bool}
  */
-export const sendEvent = async (event) => {
-  FSM.broadcast(event);
+export const sendEvent = async (event, only = null) => {
+  FSM.broadcast(event, only);
   return true;
 }
