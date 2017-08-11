@@ -178,8 +178,6 @@ export default class FSM {
    * @return {bool} - Returns true if state change occurred.
    */
   receive (event) {
-    this.log(`received event: ${event}`);
-    
     if (!this.currentState) return;
     if (this.currentState.links.length == 0) return;
 
@@ -188,6 +186,7 @@ export default class FSM {
     }));
 
     if (links.length > 0) {
+      this.log(`received actionable event: ${event}`);
       this.changeState(links[0].stateName);
       return true;
     }
