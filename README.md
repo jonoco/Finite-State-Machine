@@ -1,8 +1,9 @@
 # Finitus
 A flexible finite state machine.
 
-[![Travis](https://img.shields.io/travis/rust-lang/rust.svg?style=flat-square)](https://travis-ci.org/jonoco/finitus)
-[![GitHub release](https://img.shields.io/github/release/qubyte/rubidium.svg)](https://github.com/jonoco/finitus)
+[![Travis](https://img.shields.io/travis/jonoco/finitus.svg?style=flat-square)](https://travis-ci.org/jonoco/finitus)
+[![GitHub release](https://img.shields.io/github/release/jonoco/finitus.svg)](https://github.com/jonoco/finitus)
+[![license](https://img.shields.io/github/license/jonoco/finitus.svg)](https://github.com/jonoco/finitus)
 
 ## Installation
 Get the distribution package from npm:
@@ -122,3 +123,6 @@ Hand: current state is Flicking
     - State machine runs actions on current state ->
 - State machine processes event queue ->
 - Signal the evaluation is complete
+
+## License
+[MIT](../blob/master/LICENSE)
