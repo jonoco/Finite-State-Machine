@@ -2,7 +2,7 @@
 A flexible finite state machine.
 
 [![Travis](https://img.shields.io/travis/rust-lang/rust.svg?style=flat-square)](https://travis-ci.org/jonoco/finitus)
-[![npm](https://img.shields.io/npm/v/npm.svg)](https://www.npmjs.com/package/finitus)
+[![GitHub release](https://img.shields.io/github/release/qubyte/rubidium.svg)](https://github.com/jonoco/finitus)
 
 ## Installation
 Get the distribution package from npm:
@@ -16,32 +16,35 @@ git clone https://github.com/jonoco/finitus.git
 ```
 
 ## Useage
-### Import the finite state machine (FSM) object, Action, and any optional premade actions 
+
+### Create the machines
+Import the finite state machine (FSM) object, Action, and any optional premade actions.
 ```javascript
 const { FSM, Action, sendEvent } = require("fsm");
 ```
 
-### Create the state machines 
+Create the state machines.
 ```javascript
 // Creation order will determine the order of evaluation
 const switchSM = FSM.create("Switch");
 const handSM = FSM.create("Hand");
 ```
 
-### Add states to the state machines
+Add states to the state machines.
 ```javascript
 // The first state added to a machine will become the initial state
 switchSM.addState('Off');
 switchSM.addState('On');
 handSM.addState('Flicking');
 ```
-### Link states together
+
+Link states together.
 ```javascript
 // Creates unidirectional link: Off -> On
 switchSM.linkState('Off', 'On', 'flick on'); 
 ```
 
-### Create a new Action
+Create a new Action.
 ```javascript
 // All Actions must be Async Functions and return true on successful completion
 const logMessage = async (msg) => {
@@ -50,7 +53,7 @@ const logMessage = async (msg) => {
 }
 ```
 
-### Add actions to the state machine's states
+Add actions to the state machine's states.
 ```javascript
 switchSM.addAction('On', new Action(logMessage, 'light on'));
 handSM.addAction('Flicking', new Action(sendEvent, 'flick on'));
@@ -59,6 +62,7 @@ handSM.addAction('Flicking', new Action(sendEvent, 'flick on'));
 ### Evaluate all state machines.
 Evaluating this particular state changes will take a maximum of three evaluation cycles. This can be done by chaining promises together, via an asynchronous loop, or using the built in looping method.
 
+Chaining:
 ```javascript 
 FSM.evaluate()
     .then(() => { 
@@ -72,6 +76,7 @@ FSM.evaluate()
     });
 ```
 
+Async loop:
 ```javascript
 const asyncLoop = async () => {
     for (let i = 0 ; i < 3 ; i++) {
@@ -82,11 +87,13 @@ const asyncLoop = async () => {
 asyncLoop();
 ```
 
+Internal loop:
 ```javascript
 FSM.evaluate(true); // Will loop continuously in 10 ms cycles.
 ```
 
-### Expected output
+### Expected output.
+
 Using the Promise chaining method:
 ```
 Switch: evaluating state of machine
