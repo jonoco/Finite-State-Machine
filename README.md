@@ -125,4 +125,4 @@ Hand: current state is Flicking
 - Signal the evaluation is complete
 
 ## License
-[MIT](../blob/master/LICENSE)
+[MIT](../master/LICENSE)
