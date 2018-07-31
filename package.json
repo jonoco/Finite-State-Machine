@@ -37,6 +37,10 @@
     "semantic-release": "^6.3.6",
     "webpack": "3.4.1"
   },
+  "engines" : { 
+    "node" : "8.11.3",
+    "npm": "5.6.0" 
+  },
   "config": {
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
