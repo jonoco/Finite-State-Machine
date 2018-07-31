@@ -77,16 +77,66 @@ describe("Test FSM object", function() {
   });
 
   it("should not evaluate actions twice without a loop flag", function(done) {
-    const name01 = "one";
+    const state = "state name";
+    let count = 0;
 
-    fsm.addState(name01);
-    fsm.addAction(name01, new Action(async () => {}));
+    const counter = async () => {
+      count++;
+      return true;
+    };
+
+    fsm.addState(state);
+    fsm.addAction(state, new Action(counter));
     
     fsm.evaluateActions().then(res => {
-      expect(res).toEqual(true);
+      expect(count).toEqual(1);
       return fsm.evaluateActions();
     }).then(res => {
-      expect(res).toEqual(false);
+      expect(count).toEqual(1);
+    });
+
+    done();
+  });
+
+  it("should evaluate actions twice with an action loop flag", function(done) {
+    const state = "state name";
+    let count = 0;
+
+    const counter = async () => {
+      count++;
+      return true;
+    };
+
+    fsm.addState(state);
+    fsm.addAction(state, new Action(counter), true);
+    
+    fsm.evaluateActions().then(res => {
+      expect(count).toEqual(1);
+      return fsm.evaluateActions();
+    }).then(res => {
+      expect(count).toEqual(2);
+    });
+
+    done();
+  });
+
+  it("should evaluate actions twice with a state loop flag", function(done) {
+    const state = "state name";
+    let count = 0;
+
+    const counter = async () => {
+      count++;
+      return true;
+    };
+
+    fsm.addState(state, true);
+    fsm.addAction(state, new Action(counter));
+    
+    fsm.evaluateActions().then(res => {
+      expect(count).toEqual(1);
+      return fsm.evaluateActions();
+    }).then(res => {
+      expect(count).toEqual(2);
     });
 
     done();

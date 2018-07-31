@@ -30,6 +30,8 @@ export default class FSM {
    * @param {FSM} only - Only state machine to receive event.
    */
   static broadcast (event, only = null) {
+    console.log(`broadcasting event: ${event}`);
+
     FSM.stateMachines.forEach(sm => {
       if (!only) {
         sm.listen(event);  
@@ -58,7 +60,7 @@ export default class FSM {
   /**
    * Add a state.
    * @param {string} name - Name of state to create.
-   * @param {bool} loop - Whether state should run Actions every evaluation. Default false.
+   * @param {bool} loop - Whether state should run Actions every evaluation. Overrides action loop property if true. Default false.
    * @return {State} A State object.
    */
   addState (name, loop = false) {
@@ -215,26 +217,30 @@ export default class FSM {
 
   /**
    * Evalutes the current state's actions.
-   * @return {bool} - Returns true if evaluated.
+   * @return {bool}
    */
   async evaluateActions () {
-    if (!this.currentState.loop && this.currentState.evaluated) return false;
-
     const actions = this.currentState.actions;
     for (let i = 0; i < actions.length ; i++) {
       let actionID = actions[i];
       let count = 0;
       const limit = 10;
-      let res;
+      let res; // response from action
       while (!res && count < limit) {
         let action = this.actions[actionID]; 
+
+        // Call action only if state or action loops, or action still unevaluated
+        if (!this.currentState.loop && (!action.loop && action.evaluated)) {
+          break;
+        }
+
+        action.evaluated = true;
+
         res = await action.callback(...action.args);
         count++;
         if (count == limit) {this.log("state evaluation limit reached");}
       }
     }
-
-    this.currentState.evaluated = true;
 
     return true;
   }
@@ -279,12 +285,20 @@ export default class FSM {
    * Adds an action to a given state. Returns the Action id.
    * @param {string} stateName - Name of state to add action to.
    * @param {Action} action - Action to add.
+   * @param {bool} loop - Whether action should run once or loop on each evaluation. Default is false.
    * @return {string} The Action ID.
    */
-  addAction (stateName, action) {
-    const state = this.findState(stateName);
+  addAction (stateName, action, loop = false) {
+    action.loop = loop;
+
     const actionID = action.createID();
+
+    // Save the action's id
     this.actions[actionID] = action;
+    
+    const state = this.findState(stateName);
+
+    // Add action to state's action array
     state.actions.push(actionID);
 
     return actionID
@@ -335,9 +349,8 @@ function State (name) {
   this.name = name;
   this.id;
   this.links = [];        // All outbound connecting states from this state
-  this.actions = [];      // All actions assigned to this state;
-  this.loop;              // Whether state loops through actions every evaluation
-  this.evaluated = false; // Whether state already evaluated actions
+  this.actions = [];      // All actions assigned to this state
+  this.loop;              // Whether state loops through actions every evaluation - Default false
 }
 
 /**

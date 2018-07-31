@@ -15,6 +15,8 @@ export class Action {
     this.callback = callback;
     this.args = args;
     this.id;
+    this.evaluated = false;
+    this.loop; // Indicates whether action should be evaluated once or repeatedly
   }
 
   /**
