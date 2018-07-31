@@ -4,6 +4,7 @@ A flexible finite state machine.
 [![Travis](https://img.shields.io/travis/jonoco/finitus.svg?style=flat-square)](https://travis-ci.org/jonoco/finitus)
 [![GitHub release](https://img.shields.io/github/release/jonoco/finitus.svg)](https://github.com/jonoco/finitus)
 [![license](https://img.shields.io/github/license/jonoco/finitus.svg)](https://github.com/jonoco/finitus)
+[![npm](https://img.shields.io/npm/v/finitus.svg)](https://www.npmjs.com/package/finitus)
 
 ## Installation
 Get the distribution package from npm:
